@@ -1,433 +1,224 @@
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
-public class task4 {
 
-    public static int isSpace(String a, String b) {
-        /*Бесси работает над сочинением для своего класса писателей. Поскольку ее почерк
-        довольно плох, она решает напечатать эссе с помощью текстового процессора.
-        Эссе содержит N слов (1≤N≤100), разделенных пробелами. Каждое слово имеет
-        длину от 1 до 15 символов включительно и состоит только из прописных или
-        строчных букв. Согласно инструкции к заданию, эссе должно быть
-        отформатировано очень специфическим образом: каждая строка должна содержать
-        не более K (1≤K≤80) символов, не считая пробелов. К счастью, текстовый
-        процессор Бесси может справиться с этим требованием, используя следующую
-        стратегию:
-        – Если Бесси набирает Слово, и это слово может поместиться в текущей строке, поместите
-        его в эту строку. В противном случае поместите слово на следующую строку и
-        продолжайте добавлять к этой строке. Конечно, последовательные слова в одной строке
-        все равно должны быть разделены одним пробелом. В конце любой строки не должно
-        быть места.
-        – К сожалению, текстовый процессор Бесси только что сломался. Пожалуйста,
-        помогите ей правильно оформить свое эссе!*/
-
-        String withSpaces = a + " " + b;
-        int count = 0;
-        for (int i = 0; i < withSpaces.length(); i++) {
-            char c = withSpaces.charAt(i);
-            if (c == ' ') {
-                count++;
-            }
-        }
-        return withSpaces.length() - count;
+public class Four {
+    public static void main(String[]args){
+        System.out.println("1. " + bessy(10, 7, "hello my name is Bessie and this is my essay"));
+        System.out.println("2. " + split("((())())(()(()()))"));
+        System.out.println("3. " + toCamelCase("hello_edabit"));
+        System.out.println("   " + toSnakeCase("helloEdabit"));
+        double[] array1 = {9, 17, 30, 1.5};
+        System.out.println("4. " + overTime(array1));
+        System.out.println("5. " + BMI("205 pounds", "73 inches"));
+        System.out.println("   " + BMI("55 kilos", "1.65 meters"));
+        System.out.println("   " + BMI("154 pounds", "2 meters"));
+        System.out.println("6. " + bugger(39));
+        System.out.println("7. " + toStarShorthand("abbccc"));
+        System.out.println("8. " + doesRhyme("Sam I am!", "Green eggs and ham."));
+        System.out.println("9. " + trouble(666789, 12345667));
+        System.out.println("10. " + countUniqueBooks("AZYWABBCATTTA", 'A'));
     }
+    public static String bessy(int n, int k, String str) {
+        String[] text = str.split(" ");
+        String line = "";
+        String result = "";
 
-    public static void essay(int n, int k, String str) {
-        String[] arrStr = str.split(" ");
-        for (int i = 1; i < n; i++) {
-            if (isSpace(arrStr[i-1], arrStr[i]) <= k) {
-                arrStr[i] = arrStr[i-1] + " " + arrStr[i];
-                arrStr[i-1] = "";
-            }
-        }
         for (int i = 0; i < n; i++) {
-            if (arrStr[i].length() > 0) {
-                System.out.println(arrStr[i]);
+            if (line.length() + text[i].length() > k) {
+                result = result.trim() + "\r\n" + text[i] + " ";
+                line = text[i];
+            } else {
+                result += text[i] + " ";
+                line += text[i];
             }
         }
+
+        return result.trim();
+    }
+    
+    // группирует строку в кластер скобок
+    public static String[] split(String str) {
+        List<String> list = new ArrayList<>();
+        int m = 0;
+        int i = 0;
+        String string = str;
+        while (string.length() > 0) {
+            if (string.charAt(i) == '(') m++;
+            else m--;
+
+            if (m == 0) {
+                list.add(string.substring(0, i + 1));
+                string = string.substring(i + 1);
+                i = 0;
+                continue;
+            }
+            i++;
+        }
+        return list.toArray(new String[list.size()]);
+    }
+    
+    // две функции toCamelCase () и toSnakeCase (), каждая из которых берет
+    //одну строку и преобразует ее либо в camelCase, либо в snake_case
+    public static String toCamelCase(String str) {
+        String[] tokens = str.split("_");
+        for (int i = 1; i < tokens.length; i++) {
+            tokens[i] = Character.toUpperCase(tokens[i].charAt(0)) + tokens[i].substring(1);
+        }
+        return String.join("", tokens);
     }
 
-    public static String[] splitBkt(String oldaStr) {
-        /*Напишите функцию, которая группирует строку в кластер скобок. Каждый кластер
-        должен быть сбалансирован.*/
-
-        boolean checkBkt = true;
-        char[] aArray = oldaStr.toCharArray();
-        String[] resArray = new String[0];
-        for (char i : aArray) {
-            if (!(i == (int) '(' || i == (int) ')')) {
-                checkBkt = false;
-                break;
-            }
-        }
-        if (checkBkt) {
-            int count0 = 0, count1 = 0, preI = 0;
-            for (int i = 0; i < aArray.length-1; i++) {
-                if (aArray[i] == '(') count0++;
-                if (aArray[i] == ')') count1++;
-                if (count0 == count1) {
-                    resArray = Arrays.copyOf(resArray, resArray.length + 1);
-                    resArray[resArray.length - 1] = oldaStr.substring(preI, i+1);
-                    preI = i + 1;
-                }
-            }
-            resArray = Arrays.copyOf(resArray, resArray.length + 1);
-            resArray[resArray.length - 1] = oldaStr.substring(preI);
-        }
-        return resArray;
+    public static String toSnakeCase(String str) {
+        return str.replaceAll("([A-Z])", "_$0").toLowerCase();
     }
 
-    public static String toCamelCase(String oldStr) { // 4.3
-        /*Создайте две функции toCamelCase () и toSnakeCase (),
-        каждая из которых берет одну строку и преобразует ее либо в camelCase, либо в snake_case.*/
-
-        while (oldStr.contains("_")) {
-            int find = oldStr.indexOf("_");
-            if (find == 0) {
-                oldStr = oldStr.substring(1);
-            }
-            else if (find < oldStr.length() - 2) {
-                oldStr = oldStr.substring(0, find) + oldStr.substring(find+1, find + 2).toUpperCase() + oldStr.substring(find + 2);
-            }
-            else if (find < oldStr.length() - 1) {
-                oldStr = oldStr.substring(0, find) + oldStr.substring(find+1, find + 2).toUpperCase();
-            }
-            else if (find < oldStr.length()) {
-                oldStr = oldStr.substring(0, find);
-            }
+    //вычисляет сверхурочную работу и оплату, связанную с сверхурочной работой
+    public static String overTime(double[] work) {
+        double sum;
+        if (work[1] <= 17) {
+            sum = (work[1] - work[0]) * work[2];
+        } else {
+            sum = (17 - work[0]) * work[2] + (work[1] - 17) * work[2] * work[3];
         }
-        return oldStr;
+
+        return ('$' + String.valueOf(sum));
     }
 
-    public static String toSnakeCase(String oldStr) {
-        for (int i = 0; i < oldStr.length(); i++) {
-            if (oldStr.charAt(i) >= 'A' && oldStr.charAt(i) <= 'Z') {
-                if (i == 0) {
-                    oldStr = oldStr.substring(0, 1).toLowerCase() + oldStr.substring(1);
-                }
-                else if (i < oldStr.length() - 1) {
-                    oldStr = oldStr.substring(0, i) + "_" + oldStr.substring(i, i + 1).toLowerCase() + oldStr.substring(i + 1);
-                }
-                else {
-                    oldStr = oldStr.substring(0, i) + "_" + oldStr.substring(i).toLowerCase();
-                }
-            }
-        }
-        return oldStr;
+    //принимает вес и рост (в килограммах, фунтах,
+    //метрах или дюймах) и возвращает ИМТ и связанную с ним категорию
+    public static String BMI(String weight, String height) {
+        double amountOfWeight = Double.parseDouble(weight.split(" ")[0]);
+        double amountOfHeight = Double.parseDouble(height.split(" ")[0]);
+        String out = " ";
+
+        if (weight.contains("pounds"))
+            amountOfWeight = amountOfWeight * 0.45;
+
+        if (height.contains("inches"))
+            amountOfHeight *= 0.0254;
+
+        double BMI = Math.round((amountOfWeight / (amountOfHeight * amountOfHeight)) * 10.0) / 10.0;
+
+        if (BMI < 18.5)
+            out = BMI + " Underweight";
+
+        if (BMI >= 18.5 && BMI <= 24.9)
+            out = BMI + " Normal weight";
+
+        if (BMI > 25)
+            out = BMI + " Overweight";
+
+        return out;
     }
 
-    public static String overTime(float[] array) {
-        /*Напишите функцию, которая вычисляет сверхурочную работу и оплату, связанную с сверхурочной работой.
-        Работа с 9 до 5: обычные часы работы
-        После 5 вечера это сверхурочная работа
-        Ваша функция получает массив с 4 значениями:
-        – Начало рабочего дня, в десятичном формате, (24-часовая дневная нотация)
-        – Конец рабочего дня. (Тот же формат)
-        – Почасовая ставка
-        – Множитель сверхурочных работ
-        Ваша функция должна возвращать:
-        $ + заработанные в тот день (округлены до ближайшей сотой)*/
-
-        float overtimeMorning = 0.0f, overtime = 0.0f;
-        if (array[0] < 9) {
-            overtimeMorning = 9.0f - array[0];
-        }
-        if (array[1] > 17) {
-            overtime = (array[1] - 17.0f) + overtimeMorning;
-        }
-        float result = (array[1] - array[0] - overtime) * array[2] + overtime * array[2] * array[3];
-        String res = String.valueOf(result);
-        res += "00";
-        res = res.substring(0, res.indexOf(".") + 3);
-        return "$" + res;
-    }
-
-    public static String BMI(String a, String b) { // 4.5
-        /*Индекс массы тела (ИМТ) определяется путем измерения вашего веса в килограммах и деления на квадрат
-        вашего роста в метрах. Категории ИМТ таковы:
-        Недостаточный вес: <18,5
-        Нормальный вес: 18.5-24.9
-        Избыточный вес: 25 и более
-        Создайте функцию, которая будет принимать вес и рост (в килограммах, фунтах, метрах или дюймах)
-        и возвращать ИМТ и связанную с ним категорию. Округлите ИМТ до ближайшей десятой.*/
-
-        a = a.trim();
-        b = b.trim();
-        int indexA = a.indexOf(' ');
-        int indexB = b.indexOf(' ');
-        String weightStr = a.substring(0, indexA);
-        String weightStep = a.substring(indexA + 1);
-        String heightStr = b.substring(0, indexB);
-        String heightStep = b.substring(indexB + 1);
-        float weight = Float.parseFloat(weightStr);
-        float height = Float.parseFloat(heightStr);
-        if (weightStep.contains("pounds")) {
-            weight /= (2.205f);
-        }
-        if (heightStep.contains("inches")) {
-            height /= (39.37f);
-        }
-        if (!(weightStep.contains("kilos") || weightStep.contains("pounds"))) {
-            return "Некорректный ввод";
-        }
-        else if (!(heightStep.contains("meters") || heightStep.contains("inches"))) {
-            return "Некорректный ввод";
-        }
-        else {
-            String resConclusion;
-            double bmi = weight / (height * height);
-            if (bmi < 18.5) {
-                resConclusion = " Недостаточный вес";
-            }
-            else if (bmi < 25) {
-                resConclusion = " Нормальный вес";
-            }
-            else {
-                resConclusion = " Избыточный вес";
-            }
-            String res = String.valueOf(bmi);
-            res += "00";
-            res = res.substring(0, res.indexOf(".") + 2);
-            return res + resConclusion;
-        }
-    }
-
-    public static int bugger(int a) {
-        /*Создайте функцию, которая принимает число и возвращает его мультипликативное постоянство, которое
-        представляет собой количество раз, которое вы должны умножать цифры в num, пока не достигнете одной цифры.*/
-
+    //принимает число и возвращает его мультипликативное
+    //постоянство, которое представляет собой количество раз, которое вы должны
+    //умножать цифры в num, пока не достигнете одной цифры.
+    public static int bugger(int num) {
         int count = 0;
-        while (a >= 10) {
-            int mlt = 1, mod;
-            while (a != 0) {
-                mod = a % 10;
-                mlt *= mod;
-                a = a / 10;
+        int number = num;
+
+        while (number > 9) {
+            int chnum = 1;
+            while (number > 0) {
+                chnum *= number % 10;
+                number /= 10;
             }
-            a = mlt;
+            number = chnum;
             count++;
         }
         return count;
     }
 
-    public static String toStarShorthand(String a) { // 4.7
-        /*Напишите функцию, которая преобразует строку в звездную стенографию.
-        Если символ повторяется n раз, преобразуйте его в символ*n. */
+    //преобразует строку в звездную стенографию. 
+    //Если символ повторяется n раз, преобразуйте его в символ*n.
+    public static String toStarShorthand(String str) {
+        int count = 1;
+        char let = str.charAt(0);
+        String newStr = "";
 
-        int i = 1, count = 1;
-        String res = "";
-        while (i < a.length()) {
-            if (a.charAt(i) == a.charAt(i - 1)) {
-                count++;
-                if (a.length() - 1 == i){
-                    res += a.charAt(i) + "*" + count;
-                    break;
-                }
+        for (int i = 1; i < str.length(); i++) {
+            if (str.charAt(i) != let) {
+                if (count != 1)
+                    newStr += let + "*" + count;
                 else
-                    i++;
-            }
-            else {
-                if (count == 1) {
-                    res += a.charAt(i - 1);
-                    if (i == a.length() - 1) {
-                        res += a.charAt(i);
-                    }
-                }
-                else {
-                    res += a.charAt(i - 1) + "*" + count;
-                }
+                    newStr += let;
+                let = str.charAt(i);
                 count = 1;
+            } else
+                count++;
+        }
+        if (count != 1)
+            newStr += let + "*" + count;
+        else
+            newStr += let;
+        return newStr;
+    }
+
+    //возвращает true, если две строки рифмуются, и false в противном случае
+    public static boolean doesRhyme(String str1, String str2) {
+        str1 = str1.substring(str1.lastIndexOf(" ") + 1);
+        str2 = str2.substring(str2.lastIndexOf(" ") + 1);
+        String let = "aeiouyAEIOUY";
+        String res1 = "", res2 = "";
+
+        for (int i = 0; i < str1.length(); i++) {
+            if (let.indexOf(str1.charAt(i)) != -1)
+                res1 += str1.charAt(i);
+        }
+
+        for (int i = 0; i < str2.length(); i++) {
+            if (let.indexOf(str2.charAt(i)) != -1)
+                res2 += str2.charAt(i);
+        }
+
+        return res1.equalsIgnoreCase(res2);
+    }
+
+    //я принимает два целых числа и возвращает true, если
+    //число повторяется три раза подряд в любом месте в num1 и то же самое число
+    //повторяется два раза подряд в num2
+    public static boolean trouble(long a, long b) {
+        String aa = Long.toString(a);
+        String bb = Long.toString(b);
+        int num = 0;
+
+        for (int i = 2; i < aa.length(); i++) {
+            if (aa.charAt(i) == aa.charAt(i - 1) && aa.charAt(i) == aa.charAt(i - 2))
+                num = aa.charAt(i);
+        }
+
+        for (int i = 0; i < bb.length(); i++) {
+            if (bb.charAt(i) == num && bb.charAt(i + 1) == num)
+                return true;
+        }
+
+        return false;
+    }
+
+    //возвращает общее количество уникальных символов между всеми парами концов книги
+    public static int countUniqueBooks(String str, char c) {
+        Map<Character, Integer> values = new HashMap<>();
+        boolean start = true;
+        for (int i = 0; i < str.length(); i++) {
+            if (str.charAt(i) == c && start) {
                 i++;
-            }
-        }
-        return res;
-    }
-
-    public static boolean doesRhyme(String s, String s2) { // 4.8
-        /*Создайте функцию, которая возвращает true, если две строки рифмуются, и false в противном случае.
-        Для целей этого упражнения две строки рифмуются, если последнее слово из каждого предложения содержит
-        одни и те же гласные. */
-
-        String c = "";
-        String k = "";
-        int a = s.lastIndexOf(" ");
-        int b = s2.lastIndexOf(" ");
-        String subs = s.substring(a);
-        String subs2 = s2.substring(b);
-        for (char l:subs.toCharArray()) {
-            if ((l=='a')||(l=='e')||(l=='i')||(l=='o')||(l=='u')||(l=='y')||(l=='A')||(l=='E')||(l=='I')||(l=='O')||(l=='U')||(l=='Y')){
-                c += l;
-            }
-        }
-        for (char l:subs2.toCharArray()){
-            if ((l=='a')||(l=='e')||(l=='i')||(l=='o')||(l=='u')||(l=='y')||(l=='A')||(l=='E')||(l=='I')||(l=='O')||(l=='U')||(l=='Y')){
-                k += l;
-            }
-        }
-        return c.equalsIgnoreCase(k);
-    }
-
-    public static boolean trouble(String a, String b) { // 4.9
-        /*Создайте функцию, которая принимает два целых числа и возвращает true, если число повторяется
-        три раза подряд в любом месте в num1 и то же самое число повторяется два раза подряд в num2. */
-
-        char[] aChar = a.toCharArray();
-        char[] bChar = b.toCharArray();
-        boolean result = false;
-        int[] num1 = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-        int[] num2 = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-        for (int i = 1; i < aChar.length; i++) {
-            if (aChar[i] == aChar[i-1]) {
-                num1[Character.getNumericValue(aChar[i])] += 1;
-            }
-        }
-        for (int i = 1; i < bChar.length; i++) {
-            if (bChar[i] == bChar[i-1]) {
-                num2[Character.getNumericValue(bChar[i])] += 1;
-            }
-        }
-        for (int i = 0; i < 10; i++) {
-            if (num1[i] == 2 && num2[i] == 1) {
-                result = true;
-                break;
-            }
-        }
-        return result;
-    }
-
-    public static int countUniqueBooks(String a, String b) { // 4.10
-        /*Предположим, что пара одинаковых символов служит концами книги для всех символов между ними.
-        Напишите функцию, которая возвращает общее количество уникальных символов (книг, так сказать)
-        между всеми парами концов книги.*/
-
-        if (b.length() == 1) {
-            String partA = a;
-            String[] parts = new String[0];
-            while (partA.length() != 0) {
-                int beginPart = partA.indexOf(b);
-                if (beginPart == -1) {
-                    break;
+                while (str.charAt(i) != c) {
+                    Integer n = values.get(str.charAt(i));
+                    if (n == null) values.put(str.charAt(i), 1);
+                    i++;
                 }
-                partA = partA.substring(beginPart + 1);
-                int endPart = partA.indexOf(b);
-                parts = Arrays.copyOf(parts, parts.length + 1);
-                parts[parts.length - 1] = partA.substring(0, endPart);
-                partA = partA.substring(endPart + 1);
-            }
-            String resStr = "";
-            for (String i: parts) {
-                resStr += i;
-            }
-            String lowerRes = resStr.toLowerCase();
-            boolean[] isItThere = new boolean[Character.MAX_VALUE];
-            for (int i = 0; i < lowerRes.length(); i++) {
-                isItThere[lowerRes.charAt(i)] = true;
-            }
-            int count = 0;
-            for (boolean value: isItThere) {
-                if (value) {
-                    count++;
-                }
-            }
-            return count;
-        }
-        else {
-            return -1;
-        }
-    }
 
-    public static void main(String[] args) {
-        System.out.println("Введите номер задания от 1 до 10");
-        Scanner in = new Scanner(System.in);
-        int s = in.nextInt();
-        switch (s) {
-            case 1 -> {
-                System.out.println("Задание 1");
-                System.out.println("Введите количество слов в строке, количество слов в уже новых строках," +
-                        " и саму строку");
-                Scanner in1 = new Scanner(System.in);
-                Scanner sc1 = new Scanner(System.in);
-                int v = in1.nextInt();
-                int k = in1.nextInt();
-                String str = sc1.nextLine();
-                System.out.println("Правильно оформленный текст:");
-                essay(v,k,str);
+                start = false;
             }
-            case 2 -> {
-                System.out.println("Задание 2");
-                System.out.println("Введите строку, состоящей из круглых скобок");
-                Scanner sc2 = new Scanner(System.in);
-                String str2 = sc2.nextLine();
-                System.out.println("Полученные кластеры из скобок: " + splitBkt(str2));
-            }
-            case 3 -> {
-                System.out.println("Задание 3");
-                System.out.println("Введите строку для преобразования");
-                Scanner sc3 = new Scanner(System.in);
-                String str3 = sc3.nextLine();
-                System.out.println("camelCase: " + toCamelCase(str3));
-                System.out.println("snake_case: " + toSnakeCase(str3));
-            }
-            case 4 -> {
-                System.out.println("Задание 4");
-                System.out.println("Введите четыре параметра: начало рабочего дня, конец рабочего дня, " +
-                        "почасовая ставка и множитель сверхурочных работ");
-                Scanner sc4 = new Scanner(System.in);
-                float arr[];
-                arr = new float [4];
-                for (int i = 0; i < 4; i++) {
-                    arr[i] = sc4.nextFloat();
-                }
-                System.out.println("Итоговая оплата: " + overTime(arr));
-            }
-            case 5 -> {
-                System.out.println("Задание 5");
-                System.out.println("Введите вес и рост (с единицами измерения), разделив красной строкой");
-                Scanner sc5 = new Scanner(System.in);
-                String w = sc5.nextLine();
-                String h = sc5.nextLine();
-                System.out.println("ИМТ и категория " + BMI(w, h));
-            }
-            case 6 -> {
-                System.out.println("Задание 6");
-                System.out.println("Введите число");
-                Scanner sc6 = new Scanner(System.in);
-                int num = sc6.nextInt();
-                System.out.println("Мультипликативное постоянство числа: " + bugger(num));
-            }
-            case 7 -> {
-                System.out.println("Задание 7");
-                System.out.println("Введите строку");
-                Scanner sc7 = new Scanner(System.in);
-                String txt = sc7.nextLine();
-                System.out.println("Звездная стенография строки: " + toStarShorthand(txt));
-            }
-            case 8 -> {
-                System.out.println("Задание 8");
-                System.out.println("Введите 2 строки через красную строку");
-                Scanner sc8 = new Scanner(System.in);
-                String txt1 = sc8.nextLine();
-                String txt2 = sc8.nextLine();
-                System.out.println("Строки ревнуются: " + doesRhyme(txt1, txt2));
-            }
-            case 9 -> {
-                System.out.println("Задание 9");
-                System.out.println("Введите 2 числа, разделив красной строкой");
-                Scanner sc9 = new Scanner(System.in);
-                String num1 = sc9.nextLine();
-                String num2 = sc9.nextLine();
-                System.out.println("Число повторяется три раза подряд в num1 и два раза подряд в num2"
-                        + trouble(num1, num2));
-            }
-            case 10 -> {
-                System.out.println("Задание 10");
-                System.out.println("Введите строку и символ-разделитель, разделив красной строкой");
-                Scanner sc10 = new Scanner(System.in);
-                String str = sc10.nextLine();
-                String symb = sc10.nextLine();
-                System.out.println("Уникальных символов в строке: " + trouble(str, symb));
-            }
-            default -> System.out.println("Вы ввели некорректный номер");
+
+            if (str.charAt(i) == c)
+                start = true;
         }
+
+        return values.size();
     }
 }
