@@ -1,404 +1,410 @@
-import java.util.*;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 
-public class task6 {
+public class Six {
+    public static void main(String[]args) throws NoSuchAlgorithmException {
+        System.out.println("1. " + bell(3));
+        System.out.println("2. " + translateWord("flag"));
+        System.out.println("   " + translateSentence("I like to eat honey waffles."));
+        System.out.println("3. " + validColor("rgba(0,0,0,0.123456789)"));
+        System.out.println("4. " + stripUrlParams("https://edabit.com?a=1&b=2&a=2"));
+        System.out.println("5. " + getHashTags("How the Avocado Became the Fruit of the Global Trade"));
+        System.out.println("6. " + ulam(9));
+        System.out.println("7. " + longestNonrepeatingSubstring("abcabcbb"));
+        System.out.println("8. " + convertToRoman(12));
+        System.out.println("9. " + formula("6 * 4 = 24"));
+        System.out.println("10. " + palindromedescendant(13001120));
+    }
 
-    static int bell(int a) { // 6.1
-        int[][] bell = new int[a+1][a+1];
-        bell[0][0] = 1;
-        for (int i = 1; i <= a; i++) {
-            bell[i][0] = bell[i-1][i-1];
+    //Число Белла - это количество способов, которыми массив из n элементов может
+    //быть разбит на непустые подмножества
+    //принимает число n и возвращает соответствующее число Белла
+    public static int bell(int n) {
+        int[][] bellTriangle = new int[n+1][n+1];
+        bellTriangle[0][0] = 1;
+
+        for (int i=1; i<=n; i++) {
+            bellTriangle[i][0] = bellTriangle[i-1][i-1];
+
             for (int j=1; j<=i; j++) {
-                bell[i][j] = bell[i - 1][j - 1] + bell[i][j - 1];
+                bellTriangle[i][j] = bellTriangle[i-1][j-1] + bellTriangle[i][j-1];
             }
         }
-        return bell[a][0];
+
+        return bellTriangle[n][0];
     }
 
-    public static String translateWord(String s){ // 6.2
-        String res = "";
-        boolean ifLetterUp = false;
-        if (s.equals(" ") || s.equals("")) {
-            return res;
+    //Первая функция translateWord (word) получает слово на английском и возвращает это
+    //слово, переведенное на латинский язык. Вторая функция translateSentence (предложение)
+    //берет английское предложение и возвращает это предложение, переведенное на латинский язык.
+    public static String translateWord(String word) {
+        String result = word;
+
+        if (String.valueOf(result.charAt(0)).toLowerCase().matches("[aeiouy]")) {
+            result += "yay";
+        } else {
+            result = result.toLowerCase();
+            String newWord = result.split("[aeiouy]")[0];
+            result = result.replaceFirst(newWord,"") + newWord + "ay";
+            result = String.valueOf(result.charAt(0)).toUpperCase() + result.substring(1);
         }
-        char l = s.charAt(0);
-        if (l >= 'A' && l <= 'Z')
-            ifLetterUp = true;
-        if ((l == 'a') || (l == 'e') || (l == 'i') || (l == 'o') || (l == 'u') || (l == 'y') ||
-                (l == 'A') || (l == 'E') || (l == 'I') || (l == 'O') || (l == 'U') || (l == 'Y')) {
-            res = s + "yay";
+
+        return result;
+    }
+
+    public static String translateSentence(String str) {
+        String[] tokens = str.split(" ");
+
+        for (int i = 0; i < tokens.length; i++) {
+            if (String.valueOf(tokens[i].charAt(0)).toLowerCase().matches("[aeiouy]")) {
+                if (String.valueOf(tokens[i].charAt(tokens[i].length() - 1)).matches("[!?.,:;]")) {
+                    tokens[i] = tokens[i].substring(0, tokens[i].length() - 1) + "yay" + tokens[i].charAt(tokens[i].length() - 1);
+                } else {
+                    tokens[i] += "yay";
+                }
+            } else {
+                if (String.valueOf(tokens[i].charAt(0)).matches("[QWRTPSDFGHJKLZXCVBNM]")) {
+                    if (String.valueOf(tokens[i].charAt(tokens[i].length() - 1)).matches("[!?.,:;]")) {
+                        char mark = tokens[i].charAt(tokens[i].length() - 1);
+                        tokens[i] = tokens[i].substring(0, tokens[i].length() - 1);
+                        tokens[i] = tokens[i].toLowerCase();
+                        String newWord = tokens[i].split("[aeiouy]")[0];
+                        tokens[i] = tokens[i].replaceFirst(newWord,"") + newWord + "ay";
+                        tokens[i] = String.valueOf(tokens[i].charAt(0)).toUpperCase() + tokens[i].substring(1) + mark;
+                    } else {
+                        tokens[i] = tokens[i].toLowerCase();
+                        String newWord = tokens[i].split("[aeiouy]")[0];
+                        tokens[i] = tokens[i].replaceFirst(newWord,"") + newWord + "ay";
+                        tokens[i] = String.valueOf(tokens[i].charAt(0)).toUpperCase() + tokens[i].substring(1);
+                    }
+                } else {
+                    if (String.valueOf(tokens[i].charAt(tokens[i].length() - 1)).matches("[!?.,:;]")) {
+                        char mark = tokens[i].charAt(tokens[i].length() - 1);
+                        tokens[i] = tokens[i].substring(0, tokens[i].length() - 1);
+                        tokens[i] = tokens[i].toLowerCase();
+                        String newWord = tokens[i].split("[aeiouy]")[0];
+                        tokens[i] = tokens[i].replaceFirst(newWord,"") + newWord + "ay";
+                        tokens[i] = tokens[i] + mark;
+                    } else {
+                        tokens[i] = tokens[i].toLowerCase();
+                        String newWord = tokens[i].split("[aeiouy]")[0];
+                        tokens[i] = tokens[i].replaceFirst(newWord,"") + newWord + "ay";
+                    }
+                }
+            }
         }
+
+        return String.join(" ", tokens);
+    }
+
+    //принимает строку
+    //(например, " rgb(0, 0, 0)") и возвращает true, если ее формат правильный, в
+    //противном случае возвращает false
+    public static boolean validColor(String str) {
+        if (!str.startsWith("rgb") && !str.startsWith("rgba")) {
+            return false;
+        }
+
+        String[] numbers = str.split("\\(")[1].split(",");
+        numbers[numbers.length - 1] = numbers[numbers.length - 1].substring(0, numbers[numbers.length - 1].length() - 1);
+
+        if (str.startsWith("rgb") && !str.startsWith("rgba")) {
+            if (str.contains(".")) {
+                return false;
+            }
+
+            for (int i = 0; i < numbers.length; i ++) {
+                if (numbers[i].trim().equals("")) {
+                    return false;
+                }
+
+                int num = Integer.parseInt(numbers[i].trim());
+
+                if (!(num >= 0 && num <= 255)) {
+                    return false;
+                }
+            }
+        } else {
+            for (int i = 0; i < numbers.length - 1; i ++) {
+                if (numbers[i].trim().equals("")) {
+                    return false;
+                }
+
+                int num = Integer.parseInt(numbers[i].trim());
+
+                if (!(num >= 0 && num <= 255)) {
+                    return false;
+                }
+            }
+
+            if (numbers[3].trim().equals("")) return false;
+
+            double num = Double.parseDouble(numbers[3].trim());
+
+            return num >= 0 && num <= 1;
+        }
+
+        return true;
+    }
+
+    //принимает URL (строку), удаляет дублирующиеся
+    //параметры запроса и параметры, указанные во втором аргументе (который будет
+    //необязательным массивом)
+    public static String stripUrlParams(String url, String ...paramsToStrip) {
+        String str = "";
+
+        if (!url.contains("?"))
+            return url;
         else {
-            for (int i = 1; i <= s.length()-1; i++) {
-                char r = s.charAt(i);
-                if ((r=='a') || (r=='e') || (r=='i') || (r=='o') || (r=='u') || (r=='y')) {
-                    String end = s.substring(0, i);
-                    res = s.substring(i) + end + "ay";
-                    break;
-                }
-            }
+            str = url.substring(url.indexOf("?") + 1);
+            url = url.substring(0, url.indexOf("?") + 1);
         }
-        if (ifLetterUp)
-            res = Character.toUpperCase(res.charAt(0)) + res.toLowerCase().substring(1, res.length());
-        return res;
-    }
 
-    public static String translateSentence(String s) {
-        StringBuilder res = new StringBuilder();
-        new StringBuilder();
-        StringBuilder letters;
-        new StringBuilder();
-        StringBuilder symbols;
-        if (s.equals(" ")) {
-            return res + " ";
-        }
-        String[] words = s.split(" ");
-        for (int i = 0; i < words.length; i++) {
-            letters = new StringBuilder();
-            symbols = new StringBuilder();
-            for (char l : words[i].toCharArray()) {
-                if (l >= 'A' && l <= 'z') {
-                    letters.append(l);
-                }
-                else {
-                    symbols.append(l);
-                }
-            }
-            if (i == words.length - 1)
-                res.append(translateWord(letters.toString())).append(symbols);
-            else
-                res.append(translateWord(letters.toString())).append(symbols).append(" ");
-        }
-        return res.toString();
-    }
+        char[] params = str.toCharArray();
+        StringBuilder print = new StringBuilder();
 
-    public static boolean validColor(String a) { // 6.3
-        a = a.toLowerCase();
-        if (a.contains("rgba")) {
-            String[] arrOfRGBA = a.substring(5).split("[\\D&&[^.]]");
-            if (arrOfRGBA.length == 4) {
-                try {
-                    for (int i = 0; i < 3; i++){
-                        if (!(Integer.parseInt(arrOfRGBA[i]) >= 0 && Integer.parseInt(arrOfRGBA[i]) <= 255))
-                            return false;
-                    }
-                    return Float.parseFloat(arrOfRGBA[3]) >= 0 && Float.parseFloat(arrOfRGBA[3]) <= 1;
-                } catch (Exception e) {
-                    return false;
-                }
-            }
-            else return false;
-        }
-        else if (a.contains("rgb")) {
-            String[] arrOfRGBA = a.substring(4).split("[\\D&&[^.]]");
-            if (arrOfRGBA.length == 3) {
-                try{
-                    for (int i = 0; i < 3; i++) {
-                        if (!(Integer.parseInt(arrOfRGBA[i]) >= 0 && Integer.parseInt(arrOfRGBA[i]) <= 255))
-                            return false;
-                    }
-                    return true;
-                }
-                catch (Exception e){
-                    return false;
-                }
-            }
-            else return false;
-        }
-        else return false;
-    }
-
-    public static String stripUrlParams(String url, String ... argsToDell) { // 6.4
-        String[] args = url.substring(url.indexOf("?") + 1).split("&");
-        StringBuilder finalArgs = new StringBuilder();
-        for (int i = 0; i < args.length; i++) {
-            for (int j = i + 1; j < args.length; j++) {
-                if (args[i].charAt(0) == args[j].charAt(0)) {
-                    args[i] = " ";
-                    break;
-                }
-            }
-            for (String s : argsToDell) {
-                if (args[i].charAt(0) == s.charAt(0)) {
-                    args[i] = " ";
-                    break;
-                }
-            }
-        }
-        Arrays.sort(args);
-        for (int i = 0; i < args.length; i++) {
-            if (!args[i].equals(" "))
-                if (i != args.length - 1)
-                    finalArgs.append(args[i]).append("&");
-                else
-                    finalArgs.append(args[i]);
-        }
-        return url.substring(0, url.indexOf("?")+1) + finalArgs;
-    }
-
-    public static String[] getHashTags(String a) { // 6.5
-        String[] wordsArr = a.toLowerCase().split("[\\s,]+");
-        int highLength = wordsArr[0].length();
-        for (int i = 1; i < wordsArr.length; i++) {
-            if (wordsArr[i].length() > highLength)
-                highLength = wordsArr[i].length();
-        }
-        int tagsSize = 3;
-        if (wordsArr.length < 3)
-            tagsSize = wordsArr.length;
-        String[] tagsArr = new String[tagsSize];
-        int tagsLeft = tagsSize;
-        int tagsPosCounter = 0;
-        for (int i = 0; (tagsLeft > 0)&&(highLength > 0); i++) {
-            if (wordsArr[i].length() == highLength) {
-                tagsArr[tagsPosCounter] = "#" + wordsArr[i];
-                tagsLeft--;
-                tagsPosCounter++;
-            }
-            if (i == wordsArr.length-1){
-                i = -1;
-                highLength--;
-            }
-        }
-        return tagsArr;
-    }
-
-    public static int ulam(int a) { // 6.6
-        int[] ulamPeriod = new int[a];
-        for (int i = 0; i < ulamPeriod.length; i++) {
-            switch (i) {
-                case 0 -> ulamPeriod[i] = 1;
-                case 1 -> ulamPeriod[i] = 2;
-                default -> {
-                    int waysOfSolve = 0;
-                    int rightNumber = ulamPeriod[i - 1] + 1;
-                    while (waysOfSolve != 2) {
-                        waysOfSolve = 0;
-                        for (int j = 0; j < i; j++) {
-                            for (int k = 0; k < i; k++) {
-                                if ((ulamPeriod[j] != ulamPeriod[k]) && (ulamPeriod[j] + ulamPeriod[k] == rightNumber))
-                                    waysOfSolve++;
-                            }
+        for (char param : params) {
+            if (Character.isLetter(param))
+                if (!(print.toString().contains(String.valueOf(param)))) {
+                    if (paramsToStrip.length > 0) {
+                        for (String arg : paramsToStrip) {
+                            if (!(arg.contains(String.valueOf(param))))
+                                print.append(str, str.lastIndexOf(param), str.lastIndexOf(param) + 3).append("&");
                         }
-                        if (waysOfSolve != 2)
-                            rightNumber++;
-                        else
-                            ulamPeriod[i] = rightNumber;
+                    }
+                    else
+                        print.append(str, str.lastIndexOf(param), str.lastIndexOf(param) + 3).append("&");
+                }
+        }
+
+        return url + print.substring(0, print.length()-1);
+    }
+
+    //извлекает три самых длинных слова из заголовка
+    //газеты и преобразует их в хэштеги.
+    public static ArrayList<String> getHashTags(String str){
+        String[] tokens = str.toLowerCase().split(" ");
+        ArrayList<String> hashtags = new ArrayList<>();
+
+        while (hashtags.size() < 3) {
+            double maxLength = Double.NEGATIVE_INFINITY;
+            String word = "";
+            int idx = 0;
+
+            try {
+                for (int i = 0; i < tokens.length; i++) {
+                    if (tokens[i].length() > maxLength) {
+                        maxLength = tokens[i].length();
+                        word = tokens[i];
+                        idx = i;
                     }
                 }
-            }
-        }
-        return ulamPeriod[a-1];
-    }
 
-    public static String longestNonRepeatingSubstring(String str) { // 6.7
-        Map<Character, Integer> visitedChars = new HashMap<>();
-        String output = "";
-        for (int start = 0, end = 0; end < str.length(); end++) {
-            char currChar = str.charAt(end);
-            if (visitedChars.containsKey(currChar))
-                start = Math.max(visitedChars.get(currChar)+1, start);
-            if (output.length() < end - start + 1)
-                output = str.substring(start, end + 1);
-            visitedChars.put(currChar, end);
-        }
-        return output;
-    }
-
-    public static String convertToRoman(int a) { // 6.8
-        StringBuilder ans = new StringBuilder();
-        if (a / 1000 != 0) {
-            for (int i = a; i / 1000 != 0; i -= 1000) {
-                ans.append("M");
-            }
-            a %= 1000;
-        }
-        if (a / 100 != 0) {
-            int hundred = a / 100;
-            if (hundred <= 3)
-                ans.append("C".repeat(Math.max(0, hundred)));
-            else if (hundred == 4)
-                ans.append("CD");
-            else if (hundred <= 8) {
-                ans.append("D");
-                ans.append("C".repeat(hundred - 5));
-            } else if (hundred == 9)
-                ans.append("CM");
-            a %= 100;
-        }
-        if (a / 10 != 0) {
-            int ten = a / 10;
-            if (ten <= 3)
-                ans.append("X".repeat(Math.max(0, ten)));
-            else if (ten == 4)
-                ans.append("XL");
-            else if (ten <= 8) {
-                ans.append("L");
-                ans.append("X".repeat(ten - 5));
-            } else if (ten == 9)
-                ans.append("XC");
-            a %= 10;
-        }
-        if (a % 10 != 0) {
-            int num = a % 10;
-            if (num <= 3)
-                ans.append("I".repeat(Math.max(0, num)));
-            else if (num == 4)
-                ans.append("IV");
-            else if (num <= 8) {
-                ans.append("V");
-                ans.append("I".repeat(num - 5));
-            } else ans.append("IX");
-        }
-        return ans.toString();
-    }
-
-    public static boolean formula(String a) { // 6.9
-        boolean res = false;
-        int equalsPos = a.indexOf("=");
-        if ((equalsPos > -1) && (a.lastIndexOf("=") == equalsPos)) {
-            int mathAns = Integer.parseInt(a.substring(equalsPos+1).trim());
-            String mathExpress = a.substring(0, equalsPos);
-            if ((a.contains("+")) && (a.indexOf("+") < equalsPos)) {
-                String[] mathVars = mathExpress.trim().split(" \\+ ");
-                if (Integer.parseInt(mathVars[0]) + Integer.parseInt(mathVars[1]) == mathAns)
-                    res = true;
-            }
-            else if ((a.contains("*")) && (a.indexOf("*") < equalsPos)) {
-                String[] mathVars = mathExpress.trim().split(" \\* ");
-                if (Integer.parseInt(mathVars[0]) * Integer.parseInt(mathVars[1]) == mathAns)
-                    res = true;
-            }
-            else if ((a.contains("/")) && (a.indexOf("/") < equalsPos)) {
-                String[] mathVars = mathExpress.trim().split(" \\/ ");
-                if (Integer.parseInt(mathVars[0]) / Integer.parseInt(mathVars[1]) == mathAns)
-                    res = true;
-            }
-            else if ((a.contains("-")) && (a.indexOf("-") < equalsPos)) {
-                String[] mathVars = mathExpress.trim().split(" \\- ");
-                if (Integer.parseInt(mathVars[0]) - Integer.parseInt(mathVars[1]) == mathAns)
-                    res = true;
-            }
-        }
-        return res;
-    }
-
-    public static boolean palindromeDescendant(int a) { // 6.10
-        boolean res = false;
-        int aLength = Integer.toString(a).length();
-        String[] arrayOfNumbers = Integer.toString(a).split("");
-        StringBuilder workNum = new StringBuilder(Integer.toString(a));
-        while ((aLength > 1) && (Integer.parseInt(workNum.toString()) != numReverse(Integer.parseInt(workNum.toString())))) {
-            workNum = new StringBuilder();
-            for (int i = 0; i < arrayOfNumbers.length; i++) {
-                if (i % 2 != 0)
-                    workNum.append(Integer.parseInt(arrayOfNumbers[i - 1]) + Integer.parseInt(arrayOfNumbers[i]));
-            }
-            aLength = workNum.length();
-            arrayOfNumbers = workNum.toString().split("");
-        }
-        if ((Integer.parseInt(workNum.toString()) == numReverse(Integer.parseInt(workNum.toString()))) && (aLength > 1))
-            res = true;
-        return res;
-    }
-
-    public static int numReverse(int a) {
-        int res = 0;
-        while (a != 0) {
-            int digit = a % 10;
-            res = res * 10 + digit;
-            a /= 10;
-        }
-        return res;
-    }
-
-    public static void main(String[] args) {
-        Scanner in = new Scanner(System.in).useLocale(Locale.ENGLISH);
-        Scanner sc = new Scanner(System.in);
-        System.out.println("Введите номер задачи (от 51 до 60):");
-        int n = in.nextInt();
-        switch (n) {
-            case 51 -> {
-                System.out.println("bell()");
-                System.out.println("Введите число:");
-                int a1 = in.nextInt();
-                System.out.println("Результат: " + bell(a1));
-            }
-            case 52 -> {
-                System.out.println("translateWord() - 1");
-                System.out.println("translateSentence() - 2");
-                int n2 = in.nextInt();
-                if (n2 == 1) {
-                    System.out.println("Введите слово:");
-                    String a2 = sc.nextLine();
-                    System.out.println("Результат: " + translateWord(a2));
+                if (String.valueOf(word.charAt(word.length() - 1)).matches("[!?.,;:]")) {
+                    hashtags.add("#" + word.substring(0, word.length() - 1));
+                } else {
+                    hashtags.add("#" + word);
                 }
-                else {
-                    System.out.println("Введите строку:");
-                    String b2 = sc.nextLine();
-                    System.out.println("Результат: " + translateSentence(b2));
-                }
-            }
-            case 53 -> {
-                System.out.println("validColor()");
-                System.out.println("Введите строку:");
-                String a3 = sc.nextLine();
-                System.out.println("Результат: " + validColor(a3));
-            }
-            case 54 -> {
-                System.out.println("stripUrlParams()");
-                System.out.println("Введите URL (строку):");
-                String a4 = sc.nextLine();
-                System.out.println("Нужен ли второй аргумент? 1 - если нужен");
-                int b4 = in.nextInt();
-                if (b4 == 1) {
-                    System.out.println("Введите второй аргумент:");
-                    String c4 = sc.nextLine();
-                    System.out.println("Результат: " + stripUrlParams(a4, c4));
-                }
-                else {
-                    System.out.println("Результат: " + stripUrlParams(a4));
-                }
-            }
-            case 55 -> {
-                System.out.println("getHashTags()");
-                System.out.println("Введите строку:");
-                String a5 = sc.nextLine();
-                String[] res5 = getHashTags(a5);
-                System.out.println("Результат: ");
-                for (String i: res5) {
-                    System.out.print(i + " ");
-                }
-            }
-            case 56 -> {
-                System.out.println("ulam()");
-                System.out.println("Введите число:");
-                int a6 = in.nextInt();
-                System.out.println("Результат: " + ulam(a6));
-            }
-            case 57 -> {
-                System.out.println("longestNonRepeatingSubstring()");
-                System.out.println("Введите строку:");
-                String a7 = sc.nextLine();
-                System.out.println("Результат: " + longestNonRepeatingSubstring(a7));
-            }
-            case 58 -> {
-                System.out.println("convertToRoman()");
-                System.out.println("Введите число (от 0 до 3999):");
-                int a8 = in.nextInt();
-                System.out.println("Результат: " + convertToRoman(a8));
-            }
-            case 59 -> {
-                System.out.println("formula()");
-                System.out.println("Введите формулу:");
-                String a9 = sc.nextLine();
-                System.out.println("Результат: " + formula(a9));
-            }
-            case 60 -> {
-                System.out.println("palindromeDescendant()");
-                System.out.println("Введите число:");
-                int a10 = in.nextInt();
-                System.out.println("Результат: " + palindromeDescendant(a10));
+                tokens[idx] = "";
+            } catch (StringIndexOutOfBoundsException e) {
+                return hashtags;
             }
         }
+
+        return hashtags;
+    }
+
+    // принимает число n и возвращает n-е число в последовательности Улама.
+    public static int ulam (int n){
+        int[] arr = new int[n];
+        arr[0]=1;
+        arr[1]=2;
+        int len=2, next=3;
+
+        while (next < Integer.MAX_VALUE && len < n){
+            int count = 0;
+
+            for (int i = 0; i < len; i++){
+                for (int j = len-1; j > i; j--){
+                    if (arr[i] + arr[j] == next && arr[i] != arr[j])
+                        count++;
+                    else if (count > 1)
+                        break;
+                }
+
+                if (count > 1)
+                    break;
+            }
+            if (count == 1) {
+                arr[len] = next;
+                len++;
+            }
+            next++;
+        }
+        return arr[n-1];
+    }
+
+    //возвращает самую длинную неповторяющуюся подстроку для строкового ввода
+    public static String longestNonrepeatingSubstring(String str){
+        String substr = "";
+        char [] chars = str.toCharArray();
+        StringBuilder builder = new StringBuilder();
+
+        for (char c : chars) {
+            if (!builder.toString().contains(String.valueOf(c)))
+                builder.append(c);
+            else {
+                if (builder.length() > substr.length()) {
+                    substr = builder.toString();
+                }
+                builder = new StringBuilder("" + c);
+            }
+        }
+
+        str = builder.toString();
+
+        if (str.length() > substr.length())
+            substr = str;
+
+        return substr;
+    }
+
+    //я принимает арабское число и преобразует его в римское число.
+    public static String convertToRoman (int num){
+        StringBuilder roman = new StringBuilder();
+
+        if (num < 1 || num > 3999)
+            return "Введите меньшее число. ";
+
+        while (num >= 1000) {
+            roman.append("M");
+            num -= 1000;
+        }
+
+        while (num >= 900) {
+            roman.append("CM");
+            num -= 900;
+        }
+
+        while (num >= 500) {
+            roman.append("D");
+            num -= 500;
+        }
+
+        while (num >= 400) {
+            roman.append("CD");
+            num -= 400;
+        }
+
+        while (num >= 100) {
+            roman.append("C");
+            num -= 100;
+        }
+
+        while (num >= 90) {
+            roman.append("XC");
+            num -= 90;
+        }
+
+        while (num >= 50) {
+            roman.append("L");
+            num -= 50;
+        }
+
+        while (num >= 40) {
+            roman.append("XL");
+            num -= 40;
+        }
+
+        while (num >= 10) {
+            roman.append("X");
+            num -= 10;
+        }
+
+        while (num >= 9) {
+            roman.append("IX");
+            num -= 9;
+        }
+
+        while (num >= 5) {
+            roman.append("V");
+            num -= 5;
+        }
+
+        while (num >= 4) {
+            roman.append("IV");
+            num -= 4;
+        }
+
+        while (num >= 1) {
+            roman.append("I");
+            num -= 1;
+        }
+
+        return roman.toString();
+    }
+
+    //я принимает строку и возвращает true или false в
+    //зависимости от того, является ли формула правильной или нет.
+    public static boolean formula(String formula){
+        String[] tokens = formula.split(" ");
+        int ans = 0;
+        int expectedResult = 0;
+
+        if (!Character.isDigit(tokens[0].charAt(0))) return false;
+        else ans = Integer.parseInt(tokens[0]);
+
+        int i = 1;
+
+        while (!tokens[i].equals("=")) {
+            if (tokens[i].equals("+")){
+                ans += Integer.parseInt(tokens[i + 1]);
+            }
+            if (tokens[i].equals("-")){
+                ans -= Integer.parseInt(tokens[i + 1]);
+            }
+            if (tokens[i].equals("*")){
+                ans *= Integer.parseInt(tokens[i + 1]);
+            }
+            if (tokens[i].equals("/")){
+                ans /= Integer.parseInt(tokens[i + 1]);
+            }
+
+            i += 2;
+        }
+
+        i = formula.indexOf('=');
+        String check = formula.substring(i + 1);
+
+        if (check.contains("=")) return false;
+        else expectedResult = Integer.parseInt(tokens[tokens.length - 1]);
+
+        return ans == expectedResult;
+    }
+
+    //возвращает значение true, если само число является
+    //палиндромом или любой из его потомков вплоть до 2 цифр (однозначное число - тривиально палиндром)
+    public static boolean palindromedescendant(int num){
+        boolean isDescendant = false;
+        StringBuffer buffer1 =new StringBuffer(num);
+        StringBuffer buffer2 =new StringBuffer(num);
+
+        if (buffer1.length() % 2 != 0)
+            return false;
+        else {
+            while (!isDescendant){
+                if(buffer1 != buffer1.reverse()){
+                    for(int i = 0; i < buffer1.length(); i += 2){
+                        int a = Integer.parseInt(String.valueOf(buffer1.charAt(i)));
+                        int b = Integer.parseInt(String.valueOf(buffer1.charAt(i + 1)));
+                        buffer2.append(a + b);
+                    }
+                }
+                else
+                    isDescendant = true;
+            }
+        }
+
+        return isDescendant;
     }
 }
